@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支出管理アプリ</title>
+    <!-- スタイルシートの読み込み -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダーエリア -->
+        <header>
+            <h1>支出管理アプリ</h1>
+        </header>
+
+        <!-- 入力フォームエリア -->
+        <section class="input-area">
+            <form id="expense-form">
+                <div class="form-group">
+                    <label for="date">日付</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="item">項目名</label>
+                    <input type="text" id="item" placeholder="例: ランチ" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">金額</label>
+                    <input type="number" id="amount" placeholder="例: 1000" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">カテゴリ</label>
+                    <select id="category" required>
+                        <option value="food">食費</option>
+                        <option value="transport">交通費</option>
+                        <option value="daily">日用品</option>
+                        <option value="entertainment">エンタメ</option>
+                        <option value="others">その他</option>
+                    </select>
+                </div>
+                <button type="submit" id="submit-btn">登録</button>
+            </form>
+        </section>
+
+        <!-- 集計エリア -->
+        <section class="summary-area">
+            <h2>合計支出: <span id="total-amount">0</span> 円</h2>
+        </section>
+
+        <!-- 支出リストエリア -->
+        <section class="list-area">
+            <table id="expense-table">
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>カテゴリ</th>
+                        <th>項目名</th>
+                        <th>金額</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="expense-list">
+                    <!-- ここにJavaScriptでリストを追加 -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <!-- メインスクリプトの読み込み -->
+    <script src="main.js"></script>
+</body>
+</html>

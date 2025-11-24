@@ -1,0 +1,147 @@
+/* 全体のスタイル設定 */
+:root {
+    --primary-color: #4CAF50; /* メインカラー（緑） */
+    --secondary-color: #f4f4f4; /* 背景色（薄いグレー） */
+    --text-color: #333; /* テキストカラー */
+    --danger-color: #e74c3c; /* 削除ボタンなどの警告色 */
+    --white: #ffffff;
+    --shadow: 0 2px 5px rgba(0,0,0,0.1); /* 影の設定 */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+/* ヘッダー */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+
+header h1 {
+    color: var(--primary-color);
+}
+
+/* 入力フォームエリア */
+.input-area {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #fafafa;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button#submit-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+button#submit-btn:hover {
+    background-color: #45a049;
+}
+
+/* 集計エリア */
+.summary-area {
+    text-align: right;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+#total-amount {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* 支出リストエリア */
+.list-area {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* 削除ボタン */
+.delete-btn {
+    background-color: var(--danger-color);
+    color: var(--white);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
+}
+
+/* レスポンシブ対応（スマホ向け） */
+@media (max-width: 600px) {
+    th, td {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
