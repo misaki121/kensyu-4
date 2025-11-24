@@ -1,11 +1,16 @@
 /* 全体のスタイル設定 */
 :root {
-    --primary-color: #4CAF50; /* メインカラー（緑） */
-    --secondary-color: #f4f4f4; /* 背景色（薄いグレー） */
-    --text-color: #333; /* テキストカラー */
-    --danger-color: #e74c3c; /* 削除ボタンなどの警告色 */
+    --primary-color: #4CAF50;
+    /* メインカラー（緑） */
+    --secondary-color: #f4f4f4;
+    /* 背景色（薄いグレー） */
+    --text-color: #333;
+    /* テキストカラー */
+    --danger-color: #e74c3c;
+    /* 削除ボタンなどの警告色 */
     --white: #ffffff;
-    --shadow: 0 2px 5px rgba(0,0,0,0.1); /* 影の設定 */
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* 影の設定 */
 }
 
 * {
@@ -22,15 +27,37 @@ body {
     display: flex;
     justify-content: center;
     padding: 20px;
+    min-height: 100vh;
 }
 
 .container {
     width: 100%;
-    max-width: 800px;
+    max-width: 1200px;
+    /* 幅を広げる */
     background-color: var(--white);
     padding: 20px;
     border-radius: 8px;
     box-shadow: var(--shadow);
+    display: flex;
+    /* Flexboxレイアウト */
+    gap: 30px;
+    /* カラム間の隙間 */
+}
+
+/* 左カラム */
+.left-column {
+    flex: 1;
+    /* 1の割合 */
+    min-width: 300px;
+}
+
+/* 右カラム */
+.right-column {
+    flex: 2;
+    /* 2の割合（少し広く） */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 /* ヘッダー */
@@ -47,7 +74,6 @@ header h1 {
 
 /* 入力フォームエリア */
 .input-area {
-    margin-bottom: 30px;
     padding: 20px;
     background-color: #fafafa;
     border-radius: 8px;
@@ -90,11 +116,26 @@ button#submit-btn:hover {
     background-color: #45a049;
 }
 
+/* チャートエリア */
+.chart-area {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    height: 300px;
+    /* 高さを固定 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* 集計エリア */
 .summary-area {
     text-align: right;
-    margin-bottom: 20px;
     font-size: 1.2em;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
 }
 
 #total-amount {
@@ -105,6 +146,8 @@ button#submit-btn:hover {
 /* 支出リストエリア */
 .list-area {
     overflow-x: auto;
+    flex-grow: 1;
+    /* 残りのスペースを埋める */
 }
 
 table {
@@ -112,7 +155,8 @@ table {
     border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
@@ -121,6 +165,9 @@ th, td {
 th {
     background-color: var(--primary-color);
     color: var(--white);
+    position: sticky;
+    /* ヘッダー固定 */
+    top: 0;
 }
 
 /* 削除ボタン */
@@ -139,8 +186,19 @@ th {
 }
 
 /* レスポンシブ対応（スマホ向け） */
-@media (max-width: 600px) {
-    th, td {
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        /* 縦並びにする */
+    }
+
+    .left-column,
+    .right-column {
+        width: 100%;
+    }
+
+    th,
+    td {
         font-size: 14px;
         padding: 8px;
     }

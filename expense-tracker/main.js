@@ -3,9 +3,13 @@ const expenseForm = document.getElementById('expense-form');
 const expenseList = document.getElementById('expense-list');
 const totalAmountElement = document.getElementById('total-amount');
 const dateInput = document.getElementById('date');
+const chartCanvas = document.getElementById('expense-chart');
 
 // ローカルストレージのキー
 const STORAGE_KEY = 'expenseData';
+
+// チャートインスタンスを保持する変数
+let expenseChart = null;
 
 // アプリケーション初期化
 document.addEventListener('DOMContentLoaded', () => {
@@ -33,6 +37,7 @@ function loadExpenses() {
     const expenses = getExpensesFromStorage();
     renderList(expenses);
     updateSummary(expenses);
+    updateChart(expenses);
 }
 
 /**
@@ -60,10 +65,10 @@ function renderList(expenses) {
     // リストをクリア
     expenseList.innerHTML = '';
 
-    // 日付順（降順）にソートして表示したい場合はここでソート
-    // expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+    // 日付順（降順）にソートして表示
+    const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    expenses.forEach(expense => {
+    sortedExpenses.forEach(expense => {
         const row = document.createElement('tr');
 
         row.innerHTML = `
@@ -111,6 +116,70 @@ function getCategoryLabel(value) {
 function updateSummary(expenses) {
     const total = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
     totalAmountElement.textContent = total.toLocaleString();
+}
+
+/**
+ * 円グラフを更新する関数
+ * @param {Array} expenses 支出データの配列
+ */
+function updateChart(expenses) {
+    // カテゴリごとの集計
+    const categoryTotals = {
+        'food': 0,
+        'transport': 0,
+        'daily': 0,
+        'entertainment': 0,
+        'others': 0
+    };
+
+    expenses.forEach(expense => {
+        if (categoryTotals.hasOwnProperty(expense.category)) {
+            categoryTotals[expense.category] += Number(expense.amount);
+        } else {
+            // 未定義のカテゴリがあればその他に加算（念のため）
+            categoryTotals['others'] += Number(expense.amount);
+        }
+    });
+
+    const dataValues = Object.values(categoryTotals);
+    const labels = ['食費', '交通費', '日用品', 'エンタメ', 'その他'];
+    const backgroundColors = [
+        '#FF6384', // 食費: 赤系
+        '#36A2EB', // 交通費: 青系
+        '#FFCE56', // 日用品: 黄系
+        '#4BC0C0', // エンタメ: 緑系
+        '#9966FF'  // その他: 紫系
+    ];
+
+    // 既存のチャートがあれば破棄して再生成
+    if (expenseChart) {
+        expenseChart.destroy();
+    }
+
+    expenseChart = new Chart(chartCanvas, {
+        type: 'doughnut', // ドーナツグラフ（円グラフの一種）
+        data: {
+            labels: labels,
+            datasets: [{
+                data: dataValues,
+                backgroundColor: backgroundColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right', // 凡例を右側に表示
+                },
+                title: {
+                    display: true,
+                    text: 'カテゴリ別支出割合'
+                }
+            }
+        }
+    });
 }
 
 /**
