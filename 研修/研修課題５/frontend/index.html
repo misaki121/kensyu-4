@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#A8D8EA">
     <meta name="description" content="簡単に出退勤を記録できる勤怠管理アプリ">
-    
+
     <title>勤怠管理アプリ</title>
-    
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    
+
     <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    
+
     <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Config (設定ファイル - 最初に読み込む) -->
+    <script src="config.js"></script>
 </head>
+
 <body>
     <!-- メインコンテナ -->
     <div class="container">
@@ -82,21 +87,21 @@
         </div>
 
         <!-- 設定エリア（初回設定用） -->
-        <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-overlay hidden" id="settingsOverlay">
             <div class="settings-modal">
                 <h2>初期設定</h2>
                 <p>アプリを使用するために、以下の情報を入力してください。</p>
-                
+
                 <div class="form-group">
                     <label for="userName">ユーザー名</label>
                     <input type="text" id="userName" placeholder="山田太郎" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="gasUrl">GAS WebアプリURL</label>
                     <input type="url" id="gasUrl" placeholder="https://script.google.com/..." required>
                 </div>
-                
+
                 <button class="btn btn-primary" id="saveSettingsBtn">設定を保存</button>
             </div>
         </div>
@@ -117,4 +122,5 @@
     <!-- JavaScript -->
     <script src="app.js"></script>
 </body>
+
 </html>

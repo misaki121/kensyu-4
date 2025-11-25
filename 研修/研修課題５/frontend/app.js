@@ -1,6 +1,6 @@
 /**
  * 勤怠管理アプリ - メインJavaScript
- * 出勤打刻機能を実装
+ * config.jsから設定を読み込み、設定モーダルを省略可能にする
  */
 
 // ========================================
@@ -25,11 +25,17 @@ let todayData = {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('アプリ初期化開始');
 
-    // 設定を読み込み
+    // config.jsから設定を読み込み
+    loadConfigFromFile();
+
+    // localStorageから設定を読み込み
     loadConfig();
 
     // 設定がない場合は設定モーダルを表示
-    if (!config.userName || !config.gasUrl) {
+    const needsSettings = !config.userName || !config.gasUrl;
+    const showModal = window.APP_CONFIG?.showSettingsModal !== false;
+
+    if (needsSettings && showModal) {
         showSettingsModal();
     } else {
         hideSettingsModal();
@@ -49,13 +55,32 @@ document.addEventListener('DOMContentLoaded', () => {
 // ========================================
 
 /**
- * 設定を読み込む
+ * config.jsから設定を読み込む
+ */
+function loadConfigFromFile() {
+    if (window.APP_CONFIG) {
+        if (window.APP_CONFIG.gasUrl) {
+            config.gasUrl = window.APP_CONFIG.gasUrl;
+            console.log('config.jsからGAS URLを読み込みました');
+        }
+        if (window.APP_CONFIG.defaultUserName) {
+            config.userName = window.APP_CONFIG.defaultUserName;
+            console.log('config.jsからユーザー名を読み込みました');
+        }
+    }
+}
+
+/**
+ * localStorageから設定を読み込む
  */
 function loadConfig() {
     const savedConfig = localStorage.getItem('attendanceConfig');
     if (savedConfig) {
-        config = JSON.parse(savedConfig);
-        console.log('設定を読み込みました:', config);
+        const saved = JSON.parse(savedConfig);
+        // localStorageの設定を優先（上書き）
+        if (saved.userName) config.userName = saved.userName;
+        if (saved.gasUrl) config.gasUrl = saved.gasUrl;
+        console.log('localStorageから設定を読み込みました:', config);
     }
 }
 
@@ -73,6 +98,14 @@ function saveConfig() {
 function showSettingsModal() {
     const overlay = document.getElementById('settingsOverlay');
     overlay.classList.remove('hidden');
+
+    // config.jsの値をフォームに設定
+    if (config.userName) {
+        document.getElementById('userName').value = config.userName;
+    }
+    if (config.gasUrl) {
+        document.getElementById('gasUrl').value = config.gasUrl;
+    }
 }
 
 /**
