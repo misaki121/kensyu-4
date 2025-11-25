@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#A8D8EA">
+    <meta name="description" content="簡単に出退勤を記録できる勤怠管理アプリ">
+    
+    <title>勤怠管理アプリ</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- メインコンテナ -->
+    <div class="container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <h1>勤怠管理アプリ</h1>
+        </header>
+
+        <!-- 現在時刻表示 -->
+        <div class="current-time">
+            <div class="time-display" id="currentTime">--:--:--</div>
+            <div class="date-display" id="currentDate">----/--/--</div>
+        </div>
+
+        <!-- 打刻ボタンエリア -->
+        <div class="button-area">
+            <!-- 出勤ボタン -->
+            <button class="btn btn-clock-in" id="clockInBtn">
+                <span class="btn-icon">🌅</span>
+                <span class="btn-text">出勤</span>
+            </button>
+
+            <!-- 退勤ボタン -->
+            <button class="btn btn-clock-out" id="clockOutBtn" disabled>
+                <span class="btn-icon">🌙</span>
+                <span class="btn-text">退勤</span>
+            </button>
+
+            <!-- 課題完了報告ボタン -->
+            <button class="btn btn-submit-report" id="submitReportBtn">
+                <span class="btn-icon">✅</span>
+                <span class="btn-text">課題完了報告</span>
+            </button>
+        </div>
+
+        <!-- 本日の勤怠カード -->
+        <div class="card today-card">
+            <h2 class="card-title">📅 本日の勤怠</h2>
+            <div class="today-info">
+                <div class="info-row">
+                    <span class="info-label">出勤:</span>
+                    <span class="info-value" id="todayClockIn">--:--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">退勤:</span>
+                    <span class="info-value" id="todayClockOut">--:--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">勤務時間:</span>
+                    <span class="info-value" id="todayWorkHours">計算中</span>
+                </div>
+                <div class="status-badge" id="todayStatus">未出勤</div>
+            </div>
+        </div>
+
+        <!-- 勤怠履歴 -->
+        <div class="history-section">
+            <h2 class="section-title">📋 勤怠履歴</h2>
+            <div class="history-list" id="historyList">
+                <!-- 履歴カードがここに動的に追加されます -->
+                <div class="empty-message">履歴がありません</div>
+            </div>
+        </div>
+
+        <!-- 設定エリア（初回設定用） -->
+        <div class="settings-overlay" id="settingsOverlay">
+            <div class="settings-modal">
+                <h2>初期設定</h2>
+                <p>アプリを使用するために、以下の情報を入力してください。</p>
+                
+                <div class="form-group">
+                    <label for="userName">ユーザー名</label>
+                    <input type="text" id="userName" placeholder="山田太郎" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gasUrl">GAS WebアプリURL</label>
+                    <input type="url" id="gasUrl" placeholder="https://script.google.com/..." required>
+                </div>
+                
+                <button class="btn btn-primary" id="saveSettingsBtn">設定を保存</button>
+            </div>
+        </div>
+
+        <!-- 通知メッセージ -->
+        <div class="notification" id="notification">
+            <span class="notification-icon" id="notificationIcon">✓</span>
+            <span class="notification-text" id="notificationText">メッセージ</span>
+        </div>
+
+        <!-- ローディングオーバーレイ -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+            <p>処理中...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
