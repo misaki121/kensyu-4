@@ -3,21 +3,27 @@ const expenseForm = document.getElementById('expense-form');
 const expenseList = document.getElementById('expense-list');
 const totalAmountElement = document.getElementById('total-amount');
 const dateInput = document.getElementById('date');
-const chartCanvas = document.getElementById('expense-chart');
+function populateYearSelect() {
+    const expenses = getExpensesFromStorage();
+    const years = new Set([new Date().getFullYear()]); // 現在年は必ず含める
 
-// ローカルストレージのキー
-const STORAGE_KEY = 'expenseData';
+    expenses.forEach(expense => {
+        years.add(new Date(expense.date).getFullYear());
+    });
 
-// チャートインスタンスを保持する変数
-let expenseChart = null;
+    // 降順にソート
+    const sortedYears = Array.from(years).sort((a, b) => b - a);
 
-// アプリケーション初期化
-document.addEventListener('DOMContentLoaded', () => {
-    // 日付入力欄に今日の日付をデフォルト設定
-    setDefaultDate();
-    // 保存されたデータを読み込んで表示
-    loadExpenses();
-});
+    yearSelect.innerHTML = '';
+    sortedYears.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = `${year}年`;
+        yearSelect.appendChild(option);
+    });
+
+    yearSelect.value = currentState.currentYear;
+}
 
 /**
  * 日付入力欄に今日の日付を設定する関数
@@ -31,13 +37,37 @@ function setDefaultDate() {
 }
 
 /**
- * 支出データをローカルストレージから読み込む関数
+ * 支出データを読み込み、フィルタリングして表示する関数
  */
 function loadExpenses() {
-    const expenses = getExpensesFromStorage();
-    renderList(expenses);
-    updateSummary(expenses);
-    updateChart(expenses);
+    const allExpenses = getExpensesFromStorage();
+    const filteredExpenses = filterExpenses(allExpenses);
+
+    renderList(filteredExpenses);
+    updateSummary(filteredExpenses);
+    updateChart(filteredExpenses);
+
+    // データ更新時に年の選択肢も更新（新しい年のデータが追加された場合など）
+    populateYearSelect();
+}
+
+/**
+ * 現在の状態に基づいて支出データをフィルタリングする関数
+ * @param {Array} expenses 全支出データ
+ * @returns {Array} フィルタリングされた支出データ
+ */
+function filterExpenses(expenses) {
+    return expenses.filter(expense => {
+        const expenseDate = new Date(expense.date);
+        const expenseYear = expenseDate.getFullYear();
+        const expenseMonth = expenseDate.getMonth() + 1;
+
+        if (currentState.viewMode === 'year') {
+            return expenseYear === currentState.currentYear;
+        } else {
+            return expenseYear === currentState.currentYear && expenseMonth === currentState.currentMonth;
+        }
+    });
 }
 
 /**
@@ -67,6 +97,13 @@ function renderList(expenses) {
 
     // 日付順（降順）にソートして表示
     const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (sortedExpenses.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="5" style="text-align:center;">データがありません</td>`;
+        expenseList.appendChild(row);
+        return;
+    }
 
     sortedExpenses.forEach(expense => {
         const row = document.createElement('tr');
@@ -136,7 +173,6 @@ function updateChart(expenses) {
         if (categoryTotals.hasOwnProperty(expense.category)) {
             categoryTotals[expense.category] += Number(expense.amount);
         } else {
-            // 未定義のカテゴリがあればその他に加算（念のため）
             categoryTotals['others'] += Number(expense.amount);
         }
     });
@@ -156,8 +192,11 @@ function updateChart(expenses) {
         expenseChart.destroy();
     }
 
+    // データが全て0の場合は空のチャートを表示するか、メッセージを出すなどの処理も考えられるが
+    // ここではそのまま0のデータを渡す（Chart.jsは空の円を表示する）
+
     expenseChart = new Chart(chartCanvas, {
-        type: 'doughnut', // ドーナツグラフ（円グラフの一種）
+        type: 'doughnut',
         data: {
             labels: labels,
             datasets: [{
@@ -171,11 +210,13 @@ function updateChart(expenses) {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'right', // 凡例を右側に表示
+                    position: 'right',
                 },
                 title: {
                     display: true,
-                    text: 'カテゴリ別支出割合'
+                    text: currentState.viewMode === 'month'
+                        ? `${currentState.currentYear}年${currentState.currentMonth}月の支出割合`
+                        : `${currentState.currentYear}年の支出割合`
                 }
             }
         }
@@ -197,7 +238,7 @@ expenseForm.addEventListener('submit', (e) => {
 
     // 新しい支出オブジェクトを作成
     const newExpense = {
-        id: Date.now().toString(), // 簡易的なユニークIDとしてタイムスタンプを使用
+        id: Date.now().toString(),
         date: date,
         item: item,
         amount: Number(amount),
