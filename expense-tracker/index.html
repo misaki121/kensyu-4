@@ -47,6 +47,22 @@
 
         <!-- 右カラム：可視化・履歴エリア -->
         <div class="right-column">
+            <!-- フィルタリングエリア -->
+            <section class="filter-area">
+                <div class="view-mode-toggle">
+                    <label><input type="radio" name="view-mode" value="month" checked> 月別</label>
+                    <label><input type="radio" name="view-mode" value="year"> 年別</label>
+                </div>
+                <div class="filter-controls">
+                    <div id="year-filter-controls">
+                        <select id="year-select"></select>
+                    </div>
+                    <div id="month-filter-controls">
+                        <select id="month-select"></select>
+                    </div>
+                </div>
+            </section>
+
             <!-- 円グラフエリア -->
             <section class="chart-area">
                 <canvas id="expense-chart"></canvas>

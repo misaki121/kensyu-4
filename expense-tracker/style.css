@@ -116,6 +116,45 @@ button#submit-btn:hover {
     background-color: #45a049;
 }
 
+/* フィルタリングエリア */
+.filter-area {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.view-mode-toggle label {
+    margin-right: 15px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.filter-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#month-filter-controls,
+#year-filter-controls {
+    display: flex;
+    align-items: center;
+}
+
+#month-select,
+#year-select {
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
 /* チャートエリア */
 .chart-area {
     background-color: #fff;
@@ -168,6 +207,22 @@ th {
     position: sticky;
     /* ヘッダー固定 */
     top: 0;
+}
+
+/* 編集ボタン */
+.edit-btn {
+    background-color: #3498db;
+    color: var(--white);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.edit-btn:hover {
+    background-color: #2980b9;
 }
 
 /* 削除ボタン */

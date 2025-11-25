@@ -5,19 +5,113 @@ const totalAmountElement = document.getElementById('total-amount');
 const dateInput = document.getElementById('date');
 const chartCanvas = document.getElementById('expense-chart');
 
+// フィルタリング用DOM要素
+const viewModeRadios = document.getElementsByName('view-mode');
+const monthFilterControls = document.getElementById('month-filter-controls');
+const yearFilterControls = document.getElementById('year-filter-controls');
+const monthSelect = document.getElementById('month-select');
+const yearSelect = document.getElementById('year-select');
+
 // ローカルストレージのキー
 const STORAGE_KEY = 'expenseData';
 
 // チャートインスタンスを保持する変数
 let expenseChart = null;
 
+// アプリケーションの状態
+let currentState = {
+    viewMode: 'month', // 'month' or 'year'
+    currentYear: new Date().getFullYear(),
+    currentMonth: new Date().getMonth() + 1 // 1-12
+};
+
 // アプリケーション初期化
 document.addEventListener('DOMContentLoaded', () => {
     // 日付入力欄に今日の日付をデフォルト設定
     setDefaultDate();
+
+    // 初期表示の更新
+    populateYearSelect();
+    populateMonthSelect();
+    updateFilterUI();
+
     // 保存されたデータを読み込んで表示
     loadExpenses();
 });
+
+// イベントリスナー設定
+viewModeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        currentState.viewMode = e.target.value;
+        updateFilterUI();
+        loadExpenses();
+    });
+});
+
+monthSelect.addEventListener('change', (e) => {
+    currentState.currentMonth = parseInt(e.target.value);
+    loadExpenses();
+});
+
+yearSelect.addEventListener('change', (e) => {
+    currentState.currentYear = parseInt(e.target.value);
+    loadExpenses();
+});
+
+/**
+ * フィルタUIの表示を更新する関数
+ */
+function updateFilterUI() {
+    // モードに応じたコントロールの表示切り替え
+    if (currentState.viewMode === 'month') {
+        monthFilterControls.style.display = 'block';
+        monthSelect.value = currentState.currentMonth;
+    } else {
+        monthFilterControls.style.display = 'none';
+    }
+    // 年選択は常に表示
+    yearFilterControls.style.display = 'block';
+    yearSelect.value = currentState.currentYear;
+}
+
+/**
+ * 月選択プルダウンを生成する関数
+ */
+function populateMonthSelect() {
+    monthSelect.innerHTML = '';
+    for (let i = 1; i <= 12; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `${i}月`;
+        monthSelect.appendChild(option);
+    }
+    monthSelect.value = currentState.currentMonth;
+}
+
+/**
+ * 年選択プルダウンを生成する関数
+ */
+function populateYearSelect() {
+    const expenses = getExpensesFromStorage();
+    const years = new Set([new Date().getFullYear()]); // 現在年は必ず含める
+
+    expenses.forEach(expense => {
+        years.add(new Date(expense.date).getFullYear());
+    });
+
+    // 降順にソート
+    const sortedYears = Array.from(years).sort((a, b) => b - a);
+
+    yearSelect.innerHTML = '';
+    sortedYears.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = `${year}年`;
+        yearSelect.appendChild(option);
+    });
+
+    yearSelect.value = currentState.currentYear;
+}
 
 /**
  * 日付入力欄に今日の日付を設定する関数
@@ -31,13 +125,37 @@ function setDefaultDate() {
 }
 
 /**
- * 支出データをローカルストレージから読み込む関数
+ * 支出データを読み込み、フィルタリングして表示する関数
  */
 function loadExpenses() {
-    const expenses = getExpensesFromStorage();
-    renderList(expenses);
-    updateSummary(expenses);
-    updateChart(expenses);
+    const allExpenses = getExpensesFromStorage();
+    const filteredExpenses = filterExpenses(allExpenses);
+
+    renderList(filteredExpenses);
+    updateSummary(filteredExpenses);
+    updateChart(filteredExpenses);
+
+    // データ更新時に年の選択肢も更新（新しい年のデータが追加された場合など）
+    populateYearSelect();
+}
+
+/**
+ * 現在の状態に基づいて支出データをフィルタリングする関数
+ * @param {Array} expenses 全支出データ
+ * @returns {Array} フィルタリングされた支出データ
+ */
+function filterExpenses(expenses) {
+    return expenses.filter(expense => {
+        const expenseDate = new Date(expense.date);
+        const expenseYear = expenseDate.getFullYear();
+        const expenseMonth = expenseDate.getMonth() + 1;
+
+        if (currentState.viewMode === 'year') {
+            return expenseYear === currentState.currentYear;
+        } else {
+            return expenseYear === currentState.currentYear && expenseMonth === currentState.currentMonth;
+        }
+    });
 }
 
 /**
@@ -68,6 +186,13 @@ function renderList(expenses) {
     // 日付順（降順）にソートして表示
     const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
 
+    if (sortedExpenses.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="5" style="text-align:center;">データがありません</td>`;
+        expenseList.appendChild(row);
+        return;
+    }
+
     sortedExpenses.forEach(expense => {
         const row = document.createElement('tr');
 
@@ -77,11 +202,20 @@ function renderList(expenses) {
             <td>${expense.item}</td>
             <td>¥${Number(expense.amount).toLocaleString()}</td>
             <td>
+                <button class="edit-btn" data-id="${expense.id}">編集</button>
                 <button class="delete-btn" data-id="${expense.id}">削除</button>
             </td>
         `;
 
         expenseList.appendChild(row);
+    });
+
+    // 編集ボタンにイベントリスナーを追加
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.target.getAttribute('data-id');
+            editExpense(id);
+        });
     });
 
     // 削除ボタンにイベントリスナーを追加
@@ -136,7 +270,6 @@ function updateChart(expenses) {
         if (categoryTotals.hasOwnProperty(expense.category)) {
             categoryTotals[expense.category] += Number(expense.amount);
         } else {
-            // 未定義のカテゴリがあればその他に加算（念のため）
             categoryTotals['others'] += Number(expense.amount);
         }
     });
@@ -156,8 +289,11 @@ function updateChart(expenses) {
         expenseChart.destroy();
     }
 
+    // データが全て0の場合は空のチャートを表示するか、メッセージを出すなどの処理も考えられるが
+    // ここではそのまま0のデータを渡す（Chart.jsは空の円を表示する）
+
     expenseChart = new Chart(chartCanvas, {
-        type: 'doughnut', // ドーナツグラフ（円グラフの一種）
+        type: 'doughnut',
         data: {
             labels: labels,
             datasets: [{
@@ -171,11 +307,13 @@ function updateChart(expenses) {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'right', // 凡例を右側に表示
+                    position: 'right',
                 },
                 title: {
                     display: true,
-                    text: 'カテゴリ別支出割合'
+                    text: currentState.viewMode === 'month'
+                        ? `${currentState.currentYear}年${currentState.currentMonth}月の支出割合`
+                        : `${currentState.currentYear}年の支出割合`
                 }
             }
         }
@@ -195,19 +333,41 @@ expenseForm.addEventListener('submit', (e) => {
     const amount = document.getElementById('amount').value;
     const category = document.getElementById('category').value;
 
-    // 新しい支出オブジェクトを作成
-    const newExpense = {
-        id: Date.now().toString(), // 簡易的なユニークIDとしてタイムスタンプを使用
-        date: date,
-        item: item,
-        amount: Number(amount),
-        category: category
-    };
+    const editingId = expenseForm.dataset.editingId;
 
-    // 既存のデータに追加して保存
-    const expenses = getExpensesFromStorage();
-    expenses.push(newExpense);
-    saveExpensesToStorage(expenses);
+    if (editingId) {
+        // 編集モード: 既存のデータを更新
+        let expenses = getExpensesFromStorage();
+        const index = expenses.findIndex(exp => exp.id === editingId);
+
+        if (index !== -1) {
+            expenses[index] = {
+                id: editingId,
+                date: date,
+                item: item,
+                amount: Number(amount),
+                category: category
+            };
+            saveExpensesToStorage(expenses);
+        }
+
+        // 編集モードを解除
+        delete expenseForm.dataset.editingId;
+        document.getElementById('submit-btn').textContent = '登録';
+    } else {
+        // 新規追加モード
+        const newExpense = {
+            id: Date.now().toString(),
+            date: date,
+            item: item,
+            amount: Number(amount),
+            category: category
+        };
+
+        const expenses = getExpensesFromStorage();
+        expenses.push(newExpense);
+        saveExpensesToStorage(expenses);
+    }
 
     // 画面更新
     loadExpenses();
@@ -216,6 +376,33 @@ expenseForm.addEventListener('submit', (e) => {
     expenseForm.reset();
     setDefaultDate();
 });
+
+/**
+ * 支出を編集する関数
+ * @param {string} id 編集する支出のID
+ */
+function editExpense(id) {
+    const expenses = getExpensesFromStorage();
+    const expense = expenses.find(exp => exp.id === id);
+
+    if (!expense) return;
+
+    // フォームにデータを設定
+    document.getElementById('date').value = expense.date;
+    document.getElementById('item').value = expense.item;
+    document.getElementById('amount').value = expense.amount;
+    document.getElementById('category').value = expense.category;
+
+    // 編集中のIDを保持
+    expenseForm.dataset.editingId = id;
+
+    // ボタンのテキストを変更
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.textContent = '更新';
+
+    // フォームにスクロール
+    document.querySelector('.input-area').scrollIntoView({ behavior: 'smooth' });
+}
 
 /**
  * 支出を削除する関数
