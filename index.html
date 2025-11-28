@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>勤怠管理アプリ</title>
+  <style>
+    :root {
+      --primary-color: #00f2ff;
+      --secondary-color: #ff00e6;
+      --bg-color: #0f0f13;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-color: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at top left, #1a1a2e, #0f0f13);
+    }
+
+    /* Background Orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: -1;
+    }
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: var(--primary-color);
+      top: -50px;
+      left: -50px;
+      opacity: 0.2;
+    }
+    .orb-2 {
+      width: 250px;
+      height: 250px;
+      background: var(--secondary-color);
+      bottom: -50px;
+      right: -50px;
+      opacity: 0.2;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 400px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    .clock {
+      font-size: 48px;
+      font-weight: 700;
+      margin: 20px 0;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .date {
+      font-size: 16px;
+      opacity: 0.8;
+      margin-bottom: 30px;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      border: none;
+      border-radius: 15px;
+      padding: 20px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .btn-in {
+      background: linear-gradient(135deg, rgba(0, 242, 255, 0.2), rgba(0, 242, 255, 0.4));
+      border: 1px solid rgba(0, 242, 255, 0.5);
+      box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+    }
+    .btn-in:hover {
+      background: linear-gradient(135deg, rgba(0, 242, 255, 0.4), rgba(0, 242, 255, 0.6));
+      box-shadow: 0 0 25px rgba(0, 242, 255, 0.4);
+    }
+
+    .btn-out {
+      background: linear-gradient(135deg, rgba(255, 0, 230, 0.2), rgba(255, 0, 230, 0.4));
+      border: 1px solid rgba(255, 0, 230, 0.5);
+      box-shadow: 0 0 15px rgba(255, 0, 230, 0.2);
+    }
+    .btn-out:hover {
+      background: linear-gradient(135deg, rgba(255, 0, 230, 0.4), rgba(255, 0, 230, 0.6));
+      box-shadow: 0 0 25px rgba(255, 0, 230, 0.4);
+    }
+
+    .btn-report {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      margin-top: 10px;
+      font-size: 14px;
+      padding: 15px;
+    }
+    .btn-report:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .status-msg {
+      margin-top: 20px;
+      height: 20px;
+      font-size: 14px;
+      color: var(--primary-color);
+    }
+
+    /* Loader */
+    .loader {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #fff;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="container">
+    <h1>勤怠管理</h1>
+    <div class="date" id="currentDate">----/--/--</div>
+    <div class="clock" id="currentTime">--:--</div>
+
+    <div class="btn-group">
+      <button class="btn-in" onclick="handleClockIn()">出勤</button>
+      <button class="btn-out" onclick="handleClockOut()">退勤</button>
+    </div>
+
+    <button class="btn-report" onclick="handleReport()">課題完了報告</button>
+
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+      
+      document.getElementById('currentDate').textContent = dateStr;
+      document.getElementById('currentTime').textContent = timeStr;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    function showStatus(msg, isError = false) {
+      const el = document.getElementById('statusMsg');
+      el.textContent = msg;
+      el.style.color = isError ? '#ff4d4d' : '#00f2ff';
+      setTimeout(() => { el.textContent = ''; }, 5000);
+    }
+
+    function handleClockIn() {
+      if(!confirm('出勤しますか？')) return;
+      showStatus('処理中...', false);
+      google.script.run
+        .withSuccessHandler(res => {
+          if(res.status === 'success') showStatus(res.message);
+          else showStatus(res.message, true);
+        })
+        .withFailureHandler(err => showStatus('エラーが発生しました', true))
+        .clockIn();
+    }
+
+    function handleClockOut() {
+      if(!confirm('退勤しますか？')) return;
+      showStatus('処理中...', false);
+      google.script.run
+        .withSuccessHandler(res => {
+          if(res.status === 'success') showStatus(res.message);
+          else showStatus(res.message, true);
+        })
+        .withFailureHandler(err => showStatus('エラーが発生しました', true))
+        .clockOut();
+    }
+
+    function handleReport() {
+      if(!confirm('課題完了を報告しますか？')) return;
+      showStatus('送信中...', false);
+      google.script.run
+        .withSuccessHandler(res => {
+          if(res.status === 'success') showStatus(res.message);
+          else showStatus(res.message, true);
+        })
+        .withFailureHandler(err => showStatus('エラーが発生しました', true))
+        .sendReport();
+    }
+  </script>
+</body>
+</html>
