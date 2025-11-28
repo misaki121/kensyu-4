@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <base target="_top">
   <meta charset="utf-8">
@@ -9,12 +10,16 @@
   <title>勤怠管理アプリ</title>
   <style>
     :root {
-      --primary-color: #00f2ff;
-      --secondary-color: #ff00e6;
-      --bg-color: #0f0f13;
-      --glass-bg: rgba(255, 255, 255, 0.1);
-      --glass-border: rgba(255, 255, 255, 0.2);
-      --text-color: #ffffff;
+      --primary-color: #ffb3ba;
+      /* pastel pink */
+      --secondary-color: #bae1ff;
+      /* pastel blue */
+      --bg-color: #ffffff;
+      /* white background */
+      --glass-bg: rgba(255, 255, 255, 0.4);
+      --glass-border: rgba(200, 200, 200, 0.5);
+      --text-color: #333333;
+      /* dark gray for readability */
     }
 
     body {
@@ -29,31 +34,32 @@
       justify-content: center;
       min-height: 100vh;
       overflow: hidden;
-      background: radial-gradient(circle at top left, #1a1a2e, #0f0f13);
     }
 
-    /* Background Orbs */
+    /* Background Orbs (soft pastel) */
     .orb {
       position: absolute;
       border-radius: 50%;
       filter: blur(80px);
       z-index: -1;
     }
+
     .orb-1 {
       width: 300px;
       height: 300px;
       background: var(--primary-color);
       top: -50px;
       left: -50px;
-      opacity: 0.2;
+      opacity: 0.15;
     }
+
     .orb-2 {
       width: 250px;
       height: 250px;
       background: var(--secondary-color);
       bottom: -50px;
       right: -50px;
-      opacity: 0.2;
+      opacity: 0.15;
     }
 
     .container {
@@ -66,7 +72,7 @@
       border-radius: 20px;
       padding: 30px;
       text-align: center;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
     }
 
     h1 {
@@ -74,13 +80,14 @@
       margin-bottom: 10px;
       font-weight: 300;
       letter-spacing: 2px;
+      color: var(--primary-color);
     }
 
     .clock {
       font-size: 48px;
       font-weight: 700;
       margin: 20px 0;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      color: var(--secondary-color);
     }
 
     .date {
@@ -104,7 +111,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      color: white;
+      color: #ffffff;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -114,35 +121,39 @@
     }
 
     .btn-in {
-      background: linear-gradient(135deg, rgba(0, 242, 255, 0.2), rgba(0, 242, 255, 0.4));
-      border: 1px solid rgba(0, 242, 255, 0.5);
-      box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+      background: linear-gradient(135deg, #ffb3ba 20%, #ffd1dc 80%);
+      border: 1px solid #ff9aa2;
+      box-shadow: 0 0 15px rgba(255, 179, 186, 0.3);
     }
+
     .btn-in:hover {
-      background: linear-gradient(135deg, rgba(0, 242, 255, 0.4), rgba(0, 242, 255, 0.6));
-      box-shadow: 0 0 25px rgba(0, 242, 255, 0.4);
+      background: linear-gradient(135deg, #ff9aa2 20%, #ffd1dc 80%);
+      box-shadow: 0 0 25px rgba(255, 179, 186, 0.5);
     }
 
     .btn-out {
-      background: linear-gradient(135deg, rgba(255, 0, 230, 0.2), rgba(255, 0, 230, 0.4));
-      border: 1px solid rgba(255, 0, 230, 0.5);
-      box-shadow: 0 0 15px rgba(255, 0, 230, 0.2);
+      background: linear-gradient(135deg, #bae1ff 20%, #d0f0ff 80%);
+      border: 1px solid #8ac6ff;
+      box-shadow: 0 0 15px rgba(186, 225, 255, 0.3);
     }
+
     .btn-out:hover {
-      background: linear-gradient(135deg, rgba(255, 0, 230, 0.4), rgba(255, 0, 230, 0.6));
-      box-shadow: 0 0 25px rgba(255, 0, 230, 0.4);
+      background: linear-gradient(135deg, #8ac6ff 20%, #d0f0ff 80%);
+      box-shadow: 0 0 25px rgba(186, 225, 255, 0.5);
     }
 
     .btn-report {
       width: 100%;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(200, 200, 200, 0.3);
       margin-top: 10px;
       font-size: 14px;
       padding: 15px;
+      color: var(--text-color);
     }
+
     .btn-report:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.3);
     }
 
     .status-msg {
@@ -152,7 +163,6 @@
       color: var(--primary-color);
     }
 
-    /* Loader */
     .loader {
       display: none;
       width: 20px;
@@ -166,11 +176,17 @@
     }
 
     @keyframes rotation {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
+
 <body>
 
   <div class="orb orb-1"></div>
@@ -196,7 +212,7 @@
       const now = new Date();
       const dateStr = now.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' });
       const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-      
+
       document.getElementById('currentDate').textContent = dateStr;
       document.getElementById('currentTime').textContent = timeStr;
     }
@@ -211,11 +227,11 @@
     }
 
     function handleClockIn() {
-      if(!confirm('出勤しますか？')) return;
+      if (!confirm('出勤しますか？')) return;
       showStatus('処理中...', false);
       google.script.run
         .withSuccessHandler(res => {
-          if(res.status === 'success') showStatus(res.message);
+          if (res.status === 'success') showStatus(res.message);
           else showStatus(res.message, true);
         })
         .withFailureHandler(err => showStatus('エラーが発生しました', true))
@@ -223,11 +239,11 @@
     }
 
     function handleClockOut() {
-      if(!confirm('退勤しますか？')) return;
+      if (!confirm('退勤しますか？')) return;
       showStatus('処理中...', false);
       google.script.run
         .withSuccessHandler(res => {
-          if(res.status === 'success') showStatus(res.message);
+          if (res.status === 'success') showStatus(res.message);
           else showStatus(res.message, true);
         })
         .withFailureHandler(err => showStatus('エラーが発生しました', true))
@@ -235,11 +251,11 @@
     }
 
     function handleReport() {
-      if(!confirm('課題完了を報告しますか？')) return;
+      if (!confirm('課題完了を報告しますか？')) return;
       showStatus('送信中...', false);
       google.script.run
         .withSuccessHandler(res => {
-          if(res.status === 'success') showStatus(res.message);
+          if (res.status === 'success') showStatus(res.message);
           else showStatus(res.message, true);
         })
         .withFailureHandler(err => showStatus('エラーが発生しました', true))
@@ -247,4 +263,5 @@
     }
   </script>
 </body>
+
 </html>
